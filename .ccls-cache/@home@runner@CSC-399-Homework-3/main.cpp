@@ -9,11 +9,10 @@ vector<double> take_doub(string str);
 double manhattan_distance(vector<double> location);
 double getVectorOData(vector<double> vecFile1, vector<double> vecFile2);
 
-
 int main(int argc, char *argv[]) {
   string file1Name = argv[1];
   string file2Name = argv[2];
-  
+
   char line1[200];
   char line2[200];
 
@@ -27,36 +26,57 @@ int main(int argc, char *argv[]) {
     cout << "Failed: Are you sure that file exists?" << endl;
     return 0;
   }
-  
+
   int num1 = 0;
   int num2 = 0;
-  
+
   double distanceTemp = 0;
+  int closest = 0;
+  double tempClosest = 200.0;
 
   while (!File1.eof()) {
+    closest = 0;
+    tempClosest = 200.0;
     File1.getline(line1, 200);
     vector<double> vecFile1;
     vecFile1 = take_doub(line1);
-
     if (vecFile1.size() >= 3) {
       num1 = vecFile1.at(0);
-      }
-      while (!File2.eof()) {
-        File2.getline(line2, 200);
-        vector<double> vecFile2;
-        vecFile2 = take_doub(line2);
-        
-        if (vecFile2.size() >= 3) {
-          num2 = vecFile2.at(0);
-          }
+    }
+    while (!File2.eof()) {
+      File2.getline(line2, 200);
+      vector<double> vecFile2;
+      vecFile2 = take_doub(line2);
 
-          distanceTemp = getVectorOData(vecFile1, vecFile2);
-          if(distanceTemp != 0){
-          printf("Distance from %i and from %i: %.2f\n", num1, num2, distanceTemp);
-          }
+      if (vecFile2.size() >= 3) {
+        num2 = vecFile2.at(0);
       }
-      File2.clear();
-      File2.seekg(0);
+
+      distanceTemp = getVectorOData(vecFile1, vecFile2);
+
+      if (distanceTemp == tempClosest && distanceTemp != 0) {
+        if (num2 < closest) {
+          closest = num2;
+          tempClosest = distanceTemp;
+        }
+      }
+
+      if (distanceTemp < tempClosest && distanceTemp != 0) {
+        closest = num2;
+        tempClosest = distanceTemp;
+      }
+
+      if (distanceTemp != 0) {
+        printf("Distance from %i and from %i: %.2f\n", num1, num2,
+               distanceTemp);
+      }
+    }
+    File2.clear();
+    File2.seekg(0);
+    if (tempClosest != 0 &&) {
+      printf("The Closest point to %i is %i at %.2f\n", num1, closest,
+             tempClosest);
+    }
   }
 
   File1.close();
@@ -68,18 +88,19 @@ int main(int argc, char *argv[]) {
 
 double getVectorOData(vector<double> vecFile1, vector<double> vecFile2) {
   double distTotal = 0.0;
-  
+
   if (vecFile2.size() >= 3 && vecFile1.size() >= 3) {
     int vecPlacement = 1;
-    
-    while(vecFile1.size() > vecPlacement){
+
+    while (vecFile1.size() > vecPlacement) {
       distTotal += (vecFile1.at(vecPlacement) - vecFile2.at(vecPlacement));
 
       vecPlacement++;
     }
-    if(distTotal < 0) distTotal = -distTotal;
+    if (distTotal < 0)
+      distTotal = -distTotal;
   }
-  
+
   return distTotal;
 }
 
